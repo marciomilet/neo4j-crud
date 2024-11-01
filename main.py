@@ -28,6 +28,18 @@ def criar_relacionamento(session, nome1, nome2, relacionamento):
     """
     session.run(query, nome1=nome1, nome2=nome2)
 
+def atualizar_pessoa(session, nome, campo, valor):
+    query = f"""
+    MATCH (p:pessoa {{name: $nome}})
+    SET p.{campo} = $valor
+    RETURN p
+    """
+    try:
+        session.run(query, nome=nome, valor=valor)
+        print(f'pessoa {nome} atualizada com sucesso!')
+    except:
+        print("erro na requisição!")
+    
 
 # Parâmetros de conexão
 uri = "neo4j+s://fd936d1c.databases.neo4j.io"  # URI do seu servidor Neo4j
@@ -42,17 +54,22 @@ if driver:
     session = driver.session()  # Cria uma sessão para usar no loop
     try:
         while True:
-            opcao = input('Escolha uma operação: 1 (criar pessoa)\n2 (criar relacionamento)\n0 (sair): ')
+            opcao = input('Escolha uma operação:\n1 (criar pessoa)\n2 (criar relacionamento)\n3(atualizar pessoa)\n0 (sair): ')
             match opcao:
                 case '1':
-                    nome = input('Digite o nome da pessoa: ')
-                    idade = input('Digite a idade da pessoa: ')
+                    nome = input('Digite o nome da pessoa:\n')
+                    idade = input('Digite a idade da pessoa:\n')
                     criar_pessoa(session, nome, idade)
                 case '2':
-                    nome1 = input('digite o primeiro nome:')
-                    nome2 = input('digite o segundo nome:')
-                    relacionamento = input('digite o nome do relacionamento:')
+                    nome1 = input('digite o primeiro nome:\n')
+                    nome2 = input('digite o segundo nome:\n')
+                    relacionamento = input('digite o nome do relacionamento:\n')
                     criar_relacionamento(session,nome1,nome2,relacionamento)
+                case '3':
+                    nome = input('digite o nome da pessoa:\n')
+                    campo = input('digite qual a nova propriedade:\n')
+                    valor = input('digite o valor da nova propriedade:\n')
+                    atualizar_pessoa(session,nome, campo, valor)
                 case '0':
                     break
     finally:
