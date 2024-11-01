@@ -28,7 +28,6 @@ def criar_relacionamento(session, nome1, nome2, relacionamento):
     """
     session.run(query, nome1=nome1, nome2=nome2)
 
-def 
 
 # Parâmetros de conexão
 uri = "neo4j+s://fd936d1c.databases.neo4j.io"  # URI do seu servidor Neo4j
