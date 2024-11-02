@@ -28,6 +28,7 @@ def criar_relacionamento(session, nome1, nome2, relacionamento):
     """
     session.run(query, nome1=nome1, nome2=nome2)
 
+#função para atualizar um atributo de pessoa
 def atualizar_pessoa(session, nome, campo, valor):
     query = f"""
     MATCH (p:pessoa {{name: $nome}})
@@ -40,6 +41,29 @@ def atualizar_pessoa(session, nome, campo, valor):
     except:
         print("erro na requisição!")
     
+#função para listar todas as pessoas    
+def listar_pessoas(session):
+    query = f"""MATCH (p:pessoa) RETURN p"""
+    try:
+        session.run(query)
+    except:
+        print('Erro na requisição!')
+
+#função para listar as pessoas pelo nome
+def listar_por_nome(session,nome):
+    query = f"""MATCH (a:pessoa {{name: $nome}}) RETURN a"""
+    try:
+        session.run(query,nome = nome)
+    except:
+        print('Erro na requisição!')
+
+#função para deletar pessoa e seus relacionamentos
+def deletar_pessoa_relacionamento(session,nome):
+    query = f""" MATCH (n:pessoa {{name: $nome}})DETACH DELETE n """
+    try:
+        session.run(query,nome=nome)
+    except:
+        print('Erro na requisição!')
 
 # Parâmetros de conexão
 uri = "neo4j+s://fd936d1c.databases.neo4j.io"  # URI do seu servidor Neo4j
@@ -54,7 +78,7 @@ if driver:
     session = driver.session()  # Cria uma sessão para usar no loop
     try:
         while True:
-            opcao = input('Escolha uma operação:\n1 (criar pessoa)\n2 (criar relacionamento)\n3(atualizar pessoa)\n0 (sair): ')
+            opcao = input('Escolha uma operação:\n1 (criar pessoa)\n2 (criar relacionamento)\n3(atualizar pessoa)\n4(listar pessoas)\n5(listar por nome)\n6(deletar por nome)\n0 (sair): ')
             match opcao:
                 case '1':
                     nome = input('Digite o nome da pessoa:\n')
@@ -70,6 +94,14 @@ if driver:
                     campo = input('digite qual a nova propriedade:\n')
                     valor = input('digite o valor da nova propriedade:\n')
                     atualizar_pessoa(session,nome, campo, valor)
+                case '4':
+                    listar_pessoas(session)
+                case '5':
+                    nome = input('digite o nome da pessoa:\n')
+                    listar_por_nome(session,nome)
+                case '6':
+                    nome = input('digite o nome da pessoa a ser deletada:\n')
+                    deletar_pessoa_relacionamento(session,nome)
                 case '0':
                     break
     finally:
