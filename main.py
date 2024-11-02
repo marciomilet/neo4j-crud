@@ -26,8 +26,10 @@ def criar_relacionamento(session, nome1, nome2, relacionamento):
     CREATE (a)-[:{relacionamento}]->(b)
     RETURN a, b
     """
-    session.run(query, nome1=nome1, nome2=nome2)
-
+    try:
+        session.run(query, nome1=nome1, nome2=nome2)
+    except Exception as e:
+        print("erro na requisição!",e)
 #função para atualizar um atributo de pessoa
 def atualizar_pessoa(session, nome, campo, valor):
     query = f"""
@@ -38,32 +40,44 @@ def atualizar_pessoa(session, nome, campo, valor):
     try:
         session.run(query, nome=nome, valor=valor)
         print(f'pessoa {nome} atualizada com sucesso!')
-    except:
-        print("erro na requisição!")
+    except Exception as e:
+        print("erro na requisição!",e)
     
 #função para listar todas as pessoas    
 def listar_pessoas(session):
-    query = f"""MATCH (p:pessoa) RETURN p"""
+    query = """MATCH (p:pessoa) RETURN p"""
     try:
-        session.run(query)
-    except:
-        print('Erro na requisição!')
+        resultado = session.run(query)
+        for registro in resultado.data():
+            pessoa = registro['p']
+            print("Informações da pessoa:")
+            for chave, valor in pessoa.items():
+                print(f"  {chave}: {valor}")
+            print("-" * 20)  # Separador entre pessoas
+    except Exception as e:
+        print('Erro na requisição:', e)
 
 #função para listar as pessoas pelo nome
-def listar_por_nome(session,nome):
-    query = f"""MATCH (a:pessoa {{name: $nome}}) RETURN a"""
+def listar_por_nome(session, nome):
+    query = """MATCH (a:pessoa {name: $nome}) RETURN a"""
     try:
-        session.run(query,nome = nome)
-    except:
-        print('Erro na requisição!')
+        resultado = session.run(query, nome=nome)
+        for registro in resultado:
+            pessoa = registro['a']
+            print("Informações da pessoa:")
+            for chave, valor in pessoa.items():
+                print(f"  {chave}: {valor}")
+            print("-" * 20)  # Separador, caso haja mais de uma pessoa com o mesmo nome
+    except Exception as e:
+        print("Erro na requisição!", e)
 
 #função para deletar pessoa e seus relacionamentos
 def deletar_pessoa_relacionamento(session,nome):
     query = f""" MATCH (n:pessoa {{name: $nome}})DETACH DELETE n """
     try:
         session.run(query,nome=nome)
-    except:
-        print('Erro na requisição!')
+    except Exception as e:
+        print("erro na requisição!",e)
 
 # Parâmetros de conexão
 uri = "neo4j+s://fd936d1c.databases.neo4j.io"  # URI do seu servidor Neo4j
